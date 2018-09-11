@@ -1,0 +1,26 @@
+#!/bin/bash
+if [ $# -ne 4 ]; then
+    echo "Usage: $0 benchexec_config.xml TasksSet Name Master"
+    exit 1
+fi
+
+DATE=`date +%s`
+DIR=/var/data/symbiotic-xjasek/$3/$DATE
+MAILTO="xjasek@fi.muni.cz"
+NAME="Tomas"
+
+mkdir -p $DIR
+PATH=$PATH:/home/xjasek/formela/symbiotic/install/bin
+cp $1 $DIR
+
+./cleanup &
+CLEANER="$!"
+
+MASTER=$4
+
+test -d ~/formela/done/$3 || mkdir -p ~/formela/done/$3/
+
+./benchexec/bin/benchexec -o $DIR -t $2 -n $3 $1
+nc $MASTER 9669 <<< "`hostname`"
+echo -e "Cau $NAME,\n uz ti dobehli testy\n\n$3\n\n kategorie\n\n$2\n\n konfigurak \n\n$1\n\n v priecinku \n\n$DIR\n\n na \n\n`hostname`\n\n. Nemusis sa bat, distribench pusta dalsie.\n\n- Distribench@`hostname`" | mail -s "Symbiotic test $3 `date -d@$DATE +%d.%m.%Y\ %H:%M` `hostname`" $MAILTO
+kill -9 $CLEANER

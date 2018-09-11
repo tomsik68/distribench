@@ -1,0 +1,5 @@
+#!/bin/bash
+while true; do
+    find /tmp -type d -name 'symbiotic-*' -cmin +3 -exec rm -rf {} \; -print 2>/dev/null
+    sleep 180
+done

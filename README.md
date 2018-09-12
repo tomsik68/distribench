@@ -49,7 +49,7 @@ distribench requires SSH connection to every machine that is supposed to be part
 
 ## What client scripts take care of
 
-- each worker node is locked by existence of file `/var/data/statica/distribench.lock`
+- each worker node is locked by existence of a file (client scripts in a network need to agree on the precise filename)
 - install benchmarks set
 - install benchexec
 - extract tool archive to some folder and add it into `$PATH`

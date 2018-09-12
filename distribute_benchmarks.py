@@ -84,7 +84,7 @@ def send_file(sftp, target_file, source_path):
 
 
 args = sys.argv[1:]
-if len(args) != 5:
+if len(args) != 6:
     print("Usage: %s machines benchexec_config.xml TestsName WorkDir ToolArchive StartScript" % (sys.argv[0], ))
     sys.exit(1)
 

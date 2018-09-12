@@ -74,8 +74,8 @@ def send_file(sftp, target_file, source_path):
     """
     Upload @source_path to @target_dir through @sftp
     """
-    with open(source_path, 'r') as fSource:
-        with sftp.file(target_file, 'w') as fTarget:
+    with open(source_path, 'rb') as fSource:
+        with sftp.file(target_file, 'wb') as fTarget:
             while True:
                 copy_buffer = fSource.read(4096)
                 if not copy_buffer:

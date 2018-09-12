@@ -68,7 +68,7 @@ def runSet(master_hostname, distribench_workdir, taskset, machine, be_config, te
             send_file(sftp, workdir + '/tool', tool_archive)
 
         stdin, stdout, stderr = client.exec_command('chmod +x ' + workdir + '/start')
-        stdin, stdout, stderr = client.exec_command('cd ' + workdir + ' && nohup ' + workdir +'/start ' + be_config + ' ' + taskset + ' ' + tests_name + ' ' + master_hostname + ' >/dev/null 2>/dev/null < /dev/null')
+        stdin, stdout, stderr = client.exec_command('cd ' + workdir + ' && nohup ' + workdir +'/start ' + 'benchexec_config.xml' + ' ' + taskset + ' ' + tests_name + ' ' + master_hostname + ' >/dev/null 2>/dev/null < /dev/null')
 
 def send_file(sftp, target_file, source_path):
     """

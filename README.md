@@ -18,23 +18,20 @@ Allows running benchexec on multiple computers.
 
 ### Worker Nodes
 
-+ bash
-+ netcat
-+ sendmail (or some package with `mail` command)
-+ benchexec
-+ symbiotic (or other tested tool if desired)
++ `ssh`
++ ability to run the startup script
++ ability to run the tool
++ linux system
 
 ## Setup
 ### First time setup
 
 **Please note this guide is very shallow at the moment, I will eventually come up with something better and more complete.**
 
-Each node in the cluster needs: `run_benchmarks.cat`, `cleanup`, benchexec configuration XML(`benchexec_config.xml`) in `$DISTRIBENCH_HOME` (you can pick any folder you wish).
+distribench requires SSH connection to every machine that is supposed to be part of the cluster. In order to reduce user interaction, it is recommended to setup SSH login via a key:
 
-1. Manually review `run_benchmarks.cat` and `cleanup` scripts to change configuration
-2. Copy `run_benchmarks.cat` and `cleanup` into `$DISTRIBENCH_HOME` of each node
-3. Generate an ssh key via `ssh-keygen` on the master node
-4. Install the ssh key on each machine (meaning `ssh-copy-id`); in MUNI network, it is sufficient to install the key on `aisa`
+1. Generate an ssh key via `ssh-keygen` on the master node
+2. Install the ssh key on each machine (meaning `ssh-copy-id`); in MUNI network, it is sufficient to install the key on `aisa`
 
 ### Every time setup
 
@@ -46,10 +43,18 @@ Each node in the cluster needs: `run_benchmarks.cat`, `cleanup`, benchexec confi
 
 ## What happens automagically
 
-- each worker node gets benchexec config
 - each worker node gets startup script
-- each worker node gets tool distribution archive
+- each worker node gets benchexec config (in the same directory as the script)
+- each worker node gets tool distribution archive (in the same directory as the script)
+
+## What client scripts take care of
+
 - each worker node is locked by existence of file `/var/data/statica/distribench.lock`
+- install benchmarks set
+- install benchexec
+- extract tool archive to some folder and add it into `$PATH`
+- send status reports to server
+- run benchexec
 
 ## Output
 

@@ -125,11 +125,11 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         global jobscount
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip().decode('utf-8')
-        log("{} ({}) finished".format(self.client_address[0], self.data))
+        log("{} finished: {}".format(socket.gethostbyaddr(self.client_address[0])[0], self.data))
         jobscount -= 1
         if len(tasksets) > 0:
             taskset = tasksets.pop()
-            runSet(taskset, self.data, be_config, tests_name)
+            runSet(taskset, socket.gethostbyaddr(self.client_address[0])[0], be_config, tests_name)
             jobscount += 1
         log("{} jobs left".format(jobscount))
         if jobscount <= 0:

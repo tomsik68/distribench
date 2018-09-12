@@ -5,9 +5,9 @@ if [ $# -ne 4 ]; then
 fi
 
 DATE=`date +%s`
-DIR=/var/data/symbiotic-xjasek/$3/$DATE
-MAILTO="xjasek@fi.muni.cz"
-NAME="Tomas"
+DIR=/var/data/symbiotic-$USER/$3/$DATE
+MAILTO="$USER@fi.muni.cz"
+NAME="`getent passwd $USER` | cut -d : -f 5 | sed s': .*::g'"
 
 mkdir -p $DIR
 PATH=$PATH:/home/xjasek/formela/symbiotic/install/bin

@@ -6,13 +6,12 @@ fi
 
 DATE=`date +%s`
 PARENT_DIR=/var/data/statica/
-TOOL_BIN=/home/$USER/formela/symbiotic/install/bin
 BENCHEXEC_DIR=$PARENT_DIR/benchexec
 BENCHMARKS_DIR=$PARENT_DIR/sv-benchmarks
 DIR=$PARENT_DIR/symbiotic-$USER/$3/$DATE
 DISTRIBENCH_LOCK_FILE=$PARENT_DIR/distribench.lock
 MAILTO="$USER@fi.muni.cz"
-NAME="`getent passwd $USER` | cut -d : -f 5 | sed s': .*::g'"
+NAME="`getent passwd $USER | cut -d : -f 5 | sed s': .*::g'`"
 
 BE_CONFIG=$1
 CATEGORY=$2
@@ -20,8 +19,6 @@ TESTSNAME=$3
 MASTER=$4
 
 mkdir -p $DIR
-# add tool to PATH
-PATH=$PATH:$TOOL_BIN
 
 # copy configuration file into the output dir
 cp $BE_CONFIG $DIR
@@ -44,6 +41,7 @@ cd $PARENT_DIR
 if [ ! -d $BENCHMARKS_DIR ]; then
     wget https://github.com/sosy-lab/sv-benchmarks/archive/master.zip
     unzip master.zip
+    rm master.zip
     mv sv-benchmarks-master sv-benchmarks
 fi
 cd -
@@ -53,12 +51,29 @@ cd $PARENT_DIR
 if [ ! -d $BENCHEXEC_DIR ]; then
     wget https://github.com/sosy-lab/benchexec/archive/master.zip
     unzip master.zip
+    rm master.zip
     mv benchexec-master benchexec
 fi
 cd -
 
+# prepare symbiotic
+mkdir -p $PARENT_DIR/symbiotic-$USER/versions/
+cp tool $PARENT_DIR/symbiotic-$USER/versions/symbiotic.tgz
+cd $PARENT_DIR/symbiotic-$USER/versions/
+
+tar xvzf symbiotic.tgz
+rm symbiotic.tgz
+SYMBIOTIC_VERSION=`./install/bin/symbiotic --version | md5sum | sed s': .*::g'`
+SYMBIOTIC_DIR=$PARENT_DIR/symbiotic-$USER/versions/$SYMBIOTIC_VERSION
+mv install $SYMBIOTIC_VERSION
+cd -
+
+cp ~/formela/distribench/cleanup .
 ./cleanup &
 CLEANER="$!"
+
+# add tool to PATH
+PATH=$PATH:$SYMBIOTIC_DIR/bin/
 
 $BENCHEXEC_DIR/bin/benchexec -o $DIR -t $CATEGORY -n $TESTSNAME $BE_CONFIG
 

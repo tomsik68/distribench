@@ -18,8 +18,6 @@ CLEANER="$!"
 
 MASTER=$4
 
-test -d ~/formela/done/$3 || mkdir -p ~/formela/done/$3/
-
 ./benchexec/bin/benchexec -o $DIR -t $2 -n $3 $1
 nc $MASTER 9669 <<< "`hostname`"
 echo -e "Cau $NAME,\n uz ti dobehli testy\n\n$3\n\n kategorie\n\n$2\n\n konfigurak \n\n$1\n\n v priecinku \n\n$DIR\n\n na \n\n`hostname`\n\n. Nemusis sa bat, distribench pusta dalsie.\n\n- Distribench@`hostname`" | mail -s "Symbiotic test $3 `date -d@$DATE +%d.%m.%Y\ %H:%M` `hostname`" $MAILTO

@@ -129,7 +129,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip().decode('utf-8')
         from_host = socket.gethostbyaddr(self.client_address[0])[0]
-        cmds = self.data.split(':')[0]
+        cmds = self.data.split(':')
 
         if cmds[0] == 'done':
             tn = cmds[1]

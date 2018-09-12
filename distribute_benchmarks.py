@@ -8,9 +8,6 @@ import socket
 import logging
 from lxml import etree
 
-distribench_workdir = '~/formela' # no trailing slash
-master_hostname = socket.gethostname()
-
 def delay():
     """
     Delays the execution of a busy wait loop
@@ -82,14 +79,19 @@ def send_file(sftp, target_file, source_path):
                     break
                 fTarget.write(copy_buffer)
 
+
 args = sys.argv[1:]
 if len(args) < 3:
     print("Usage: %s machines benchexec_config.xml TestsName" % (sys.argv[0], ))
     sys.exit(1)
 
-jobscount = 0
+
+distribench_workdir = '~/formela' # no trailing slash
 be_config  = args[1]
 tests_name = args[2]
+
+jobscount = 0
+master_hostname = socket.gethostname()
 tasksets   = getTasksets(be_config)
 machines   = loadMachines(args[0])
 

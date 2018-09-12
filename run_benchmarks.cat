@@ -25,7 +25,6 @@ cp $1 $DIR
 
 # lock
 if ( set -o noclobber; echo "Locked by $USER($MAILTO)/$MASTER since `date`" > "$DISTRIBENCH_LOCK_FILE") 2> /dev/null; then
-  trap 'rm -f "$DISTRIBENCH_LOCK_FILE"; exit $?' INT TERM EXIT
   echo "Locking succeeded" >&2
 else
   echo "Lock failed - exit" >&2

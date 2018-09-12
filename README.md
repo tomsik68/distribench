@@ -23,7 +23,6 @@ Allows running benchexec on multiple computers.
 + sendmail (or some package with `mail` command)
 + benchexec
 + symbiotic (or other tested tool if desired)
-+ sv-benchmarks
 
 ## Setup
 ### First time setup
@@ -44,3 +43,14 @@ Each node in the cluster needs: `run_benchmarks.cat`, `cleanup`, benchexec confi
 2. Prepare benchexec configuration XML and copy it onto each machine into `$DISTRIBENCH_HOME`
 3. Copy benchexec configuration XML onto master node.
 4. Start `./distribute_benchmarks.py` on master node (running the script without parameters reveals usage)
+
+## What happens automagically
+
+- each worker node clones `sv-benchmarks` repository into `/var/data/statica/`
+- each worker node is locked by existence of file `/var/data/statica/distribench.lock`
+- benchexec is installed into `/var/data/statica/benchexec`
+
+## Output
+
+Outputs of tool for every job plus benchexec configuration XML are written to: `/var/data/statica/symbiotic-$USER/$TestsName/$(date +%s)/`.
+The precise name of the directory is visible in the email and also in master node log.

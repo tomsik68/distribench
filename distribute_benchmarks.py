@@ -91,14 +91,6 @@ def runSet(taskset, machine, be_config, tests_name):
 
         stdin, stdout, stderr = client.exec_command('cd ' + DISTRIBENCH_WORKDIR + ' && nohup ' + DISTRIBENCH_WORKDIR +'/run_benchmarks.cat ' + be_config + ' ' + taskset + ' ' + tests_name + ' ' + master_hostname + ' >/dev/null 2>/dev/null < /dev/null')
 
-def getFreeMachines(machines, tests_name):
-    return list(os.listdir(DONE_INDICATION_DIR+'/'+tests_name))
-
-def popFreeMachine(freeMachines):
-    result = freeMachines.pop()
-    os.remove(DONE_INDICATION_DIR+tests_name+'/'+freeMachine)
-    return result
-
 args = sys.argv[1:]
 if len(args) < 3:
     print("Usage: %s machines benchexec_config.xml TestsName" % (sys.argv[0], ))

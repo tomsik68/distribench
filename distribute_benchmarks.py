@@ -104,10 +104,13 @@ machines   = loadMachines(args[0])
 
 logging.basicConfig(filename='distribench_{}_{}.log'.format(tests_name, timef()),format='[%(asctime)s] %(message)s',level=logging.DEBUG)
 
+log('Starting tests: {}'.format(tests_name))
+log('Benchexec configuration: {}'.format(be_config))
 log('Using machines: ' + ','.join(machines))
 log('Detected task sets: ' + ','.join(tasksets))
 
 log('Performing initial scheduling...')
+
 # initially, start a taskset on each available machine
 for machine in machines:
     taskset = tasksets.pop()
@@ -127,16 +130,33 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         global jobscount
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip().decode('utf-8')
-        log("{} finished: {}".format(socket.gethostbyaddr(self.client_address[0])[0], self.data))
-        jobscount -= 1
-        if len(tasksets) > 0:
-            taskset = tasksets.pop()
-            runSet(taskset, socket.gethostbyaddr(self.client_address[0])[0], be_config, tests_name)
-            jobscount += 1
-        log("{} jobs left".format(jobscount))
-        if jobscount <= 0:
-            # TODO shutdown without deadlock
-            log("You can now shutdown the master node using CTRL-C")
+        from_host = socket.gethostbyaddr(self.client_address[0])[0]
+        cmds = self.data.split(':')[0]
+
+        if cmds[0] == 'done':
+            tn = cmds[1]
+            cat = cmds[2]
+            output_dir = cmds[3]
+            jobscount -= 1
+            if len(tasksets) > 0:
+                taskset = tasksets.pop()
+                runSet(taskset, from_host, be_config, tests_name)
+                jobscount += 1
+            log("{} jobs are running".format(jobscount))
+            if jobscount <= 0:
+                # TODO shutdown without deadlock
+                log("You can now shutdown the master node using CTRL-C")
+        elif cmds[0] == 'locked':
+            tn = cmds[1]
+            cat = cmds[2]
+            lockmsg = cmds[3]
+            log("Failed to start job {}/{}: {} is locked: {}".format(tn,cat,fromhost,lockmsg))
+            log('Pushing {} back into queue'.format(tn))
+            tasksets.append(cat)
+        else:
+            log("Task at {} failed: {}".format(fromhost,self.data))
+
+
 
 HOST, PORT = '0.0.0.0', 9669
 

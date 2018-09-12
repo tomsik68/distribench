@@ -44,11 +44,13 @@ def getTasksets(config):
     xml = etree.parse(config)
     return [tag.attrib['name'] for tag in xml.findall('//tasks')]
 
-def runSet(taskset, machine, be_config, tests_name):
+def runSet(master_hostname, distribench_workdir, taskset, machine, be_config, tests_name, tool_archive, start_script):
     """
     Starts @taskset of @tests_name on @machine with @be_config
     """
     log("Starting %s/%s @ %s" %(tests_name, taskset, machine))
+    workdir = distribench_workdir + '/' + getpass.getuser() + '/' + tests_name + '/' + str(int(time.time()))
+
     # prepare directory for done indication
     with paramiko.client.SSHClient() as client:
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -59,13 +61,14 @@ def runSet(taskset, machine, be_config, tests_name):
             pp = getpass.getpass('Please input your passphrase: ')
             client.connect(machine, passphrase=pp)
 
-        stdin, stdout, stderr = client.exec_command('mkdir -p ' + DISTRIBENCH_WORKDIR)
-        sftp = client.open_sftp()
-        send_file(sftp, DISTRIBENCH_WORKDIR + '/start', start_script)
-        send_file(sftp, DISTRIBENCH_WORKDIR + '/start', start_script)
-        send_file(sftp, DISTRIBENCH_WORKDIR + '/benchexec_config.xml', be_config)
-        stdin, stdout, stderr = client.exec_command('chmod +x ' + DISTRIBENCH_WORKDIR + '/start')
-        stdin, stdout, stderr = client.exec_command('cd ' + DISTRIBENCH_WORKDIR + ' && nohup ' + DISTRIBENCH_WORKDIR +'/start ' + be_config + ' ' + taskset + ' ' + tests_name + ' ' + master_hostname + ' >/dev/null 2>/dev/null < /dev/null')
+        stdin, stdout, stderr = client.exec_command('mkdir -p ' + workdir)
+        with client.open_sftp() as sftp:
+            send_file(sftp, workdir + '/start', start_script)
+            send_file(sftp, workdir + '/benchexec_config.xml', be_config)
+            send_file(sftp, workdir + '/tool', tool_archive)
+
+        stdin, stdout, stderr = client.exec_command('chmod +x ' + workdir + '/start')
+        stdin, stdout, stderr = client.exec_command('cd ' + workdir + ' && nohup ' + workdir +'/start ' + be_config + ' ' + taskset + ' ' + tests_name + ' ' + master_hostname + ' >/dev/null 2>/dev/null < /dev/null')
 
 def send_file(sftp, target_file, source_path):
     """
@@ -74,26 +77,28 @@ def send_file(sftp, target_file, source_path):
     with open(source_path, 'r') as fSource:
         with sftp.file(target_file, 'w') as fTarget:
             while True:
-                copy_buffer = fSource.read(16384)
+                copy_buffer = fSource.read(4096)
                 if not copy_buffer:
                     break
                 fTarget.write(copy_buffer)
 
 
 args = sys.argv[1:]
-if len(args) < 3:
-    print("Usage: %s machines benchexec_config.xml TestsName" % (sys.argv[0], ))
+if len(args) != 5:
+    print("Usage: %s machines benchexec_config.xml TestsName WorkDir ToolArchive StartScript" % (sys.argv[0], ))
     sys.exit(1)
 
 
-distribench_workdir = '~/formela' # no trailing slash
+machines = loadMachines(args[0])
 be_config  = args[1]
 tests_name = args[2]
+distribench_workdir = args[3].rstrip('/')
+tool_archive = args[4]
+start_script = args[5]
 
 jobscount = 0
 master_hostname = socket.gethostname()
-tasksets   = getTasksets(be_config)
-machines   = loadMachines(args[0])
+tasksets = getTasksets(be_config)
 
 logging.basicConfig(filename='distribench_{}_{}.log'.format(tests_name, timef()),format='[%(asctime)s] %(message)s',level=logging.INFO)
 
@@ -107,7 +112,7 @@ log('Performing initial scheduling...')
 # initially, start a taskset on each available machine
 for machine in machines:
     taskset = tasksets.pop()
-    runSet(taskset, machine, be_config, tests_name)
+    runSet(master_hostname, distribench_workdir, taskset, machine, be_config, tests_name, tool_archive, start_script)
     jobscount += 1
     if len(tasksets) == 0:
         break
@@ -133,7 +138,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             jobscount -= 1
             if len(tasksets) > 0:
                 taskset = tasksets.pop()
-                runSet(taskset, from_host, be_config, tests_name)
+                runSet(master_hostname, distribench_workdir, taskset, from_host, be_config, tests_name, tool_archive, start_script)
                 jobscount += 1
             log("{} jobs are running".format(jobscount))
             if jobscount <= 0:

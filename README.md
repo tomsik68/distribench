@@ -2,6 +2,13 @@
 
 Allows running benchexec on multiple computers.
 
+## Features
+
++ control a cluster of computers running benchexec
++ define a cluster of machines
++ start a new job when machine finishes
++ send e-mail when a machine finishes
+
 ## Requirements
 
 ### Master Node
@@ -18,14 +25,22 @@ Allows running benchexec on multiple computers.
 + symbiotic (or other tested tool if desired)
 + sv-benchmarks
 
-## How to run distribench
+## Setup
+### First time setup
 
-**Please note this guide is very shallow, I will eventually come up with something better and more complete.**
+**Please note this guide is very shallow at the moment, I will eventually come up with something better and more complete.**
 
 Each node in the cluster needs: `run_benchmarks.cat`, `cleanup`, benchexec configuration XML(`benchexec_config.xml`) in `$DISTRIBENCH_HOME` (you can pick any folder you wish).
 
-1. On each node, create a `$DISTRIBENCH_HOME` folder.
-2. Pick a master node.
-3. Prepare a file called `machines` on the master node. Each line of this file contains hostname of a usable machine in the cluster.
-4. Manually review `run_benchmarks.cat` and `cleanup` scripts to change configuration
-5. Start `./distribute_benchmarks.py` on master node
+1. Manually review `run_benchmarks.cat` and `cleanup` scripts to change configuration
+2. On each node, create a `$DISTRIBENCH_HOME` folder
+3. Copy `run_benchmarks.cat` and `cleanup` into `$DISTRIBENCH_HOME` of each node
+4. Generate an ssh key via `ssh-keygen` on the master node
+5. Install the ssh key on each machine (meaning `ssh-copy-id`); in MUNI network, it is sufficient to install the key on `aisa`
+
+### Every time setup
+
+1. Prepare a file called `machines` on the master node. Each line of this file contains hostname of a usable machine in the cluster
+2. Prepare benchexec configuration XML and copy it onto each machine into `$DISTRIBENCH_HOME`
+3. Copy benchexec configuration XML onto master node.
+4. Start `./distribute_benchmarks.py` on master node (running the script without parameters reveals usage)

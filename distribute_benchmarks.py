@@ -7,7 +7,6 @@ import socketserver
 import socket
 import logging
 
-
 # find ElementTree
 try:
     from lxml import etree
@@ -102,7 +101,7 @@ tests_name = args[2]
 tasksets   = getTasksets(be_config)
 machines   = loadMachines(args[0])
 
-logging.basicConfig(filename='distribench_{}_{}.log'.format(tests_name, timef()),format='[%(asctime)s] %(message)s',level=logging.DEBUG)
+logging.basicConfig(filename='distribench_{}_{}.log'.format(tests_name, timef()),format='[%(asctime)s] %(message)s',level=logging.INFO)
 
 log('Starting tests: {}'.format(tests_name))
 log('Benchexec configuration: {}'.format(be_config))
@@ -150,11 +149,11 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             tn = cmds[1]
             cat = cmds[2]
             lockmsg = cmds[3]
-            log("Failed to start job {}/{}: {} is locked: {}".format(tn,cat,fromhost,lockmsg))
+            log("Failed to start job {}/{}: {} is locked: {}".format(tn,cat,from_host,lockmsg))
             log('Pushing {} back into queue'.format(tn))
             tasksets.append(cat)
         else:
-            log("Task at {} failed: {}".format(fromhost,self.data))
+            log("Task at {} failed: {}".format(from_host,self.data))
 
 
 

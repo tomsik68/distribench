@@ -14,7 +14,7 @@ Allows running benchexec on multiple computers.
 ### Master Node
 
 + python3
-+ `pip3 install -r requirements.txt`
++ `pip3 install -r requirements.txt` (if you don't have root access, you can still `pip3 install --user -r requirements.txt`)
 
 ### Worker Nodes
 

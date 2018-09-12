@@ -5,6 +5,8 @@ import getpass
 import time
 import socketserver
 import socket
+import logging
+
 
 # find ElementTree
 try:
@@ -52,9 +54,7 @@ def log(msg):
     """
     Print a formatted message to the log
     """
-    logMessage = "[%s] %s" % (timef(), msg)
-    print(logMessage)
-    # TODO log to file maybe?
+    logging.info(msg)
 
 def loadMachines(f):
     """
@@ -101,6 +101,8 @@ be_config  = args[1]
 tests_name = args[2]
 tasksets   = getTasksets(be_config)
 machines   = loadMachines(args[0])
+
+logging.basicConfig(filename='distribench_{}_{}.log'.format(tests_name, timef()),format='[%(asctime)s] %(message)s',level=logging.DEBUG)
 
 log('Using machines: ' + ','.join(machines))
 log('Detected task sets: ' + ','.join(tasksets))

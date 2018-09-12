@@ -55,8 +55,4 @@ distribench requires SSH connection to every machine that is supposed to be part
 - extract tool archive to some folder and add it into `$PATH`
 - send status reports to server
 - run benchexec
-
-## Output
-
-Outputs of tool for every job plus benchexec configuration XML are written to: `/var/data/statica/symbiotic-$USER/$TestsName/$(date +%s)/`.
-The precise name of the directory is visible in the email and also in master node log.
+- collecting tool output

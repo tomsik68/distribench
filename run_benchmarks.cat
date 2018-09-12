@@ -24,13 +24,12 @@ cp $1 $DIR
 [ -f $DISTRIBENCH_LOCK_FILE ] && exit 1
 
 # lock
-if ( set -o noclobber; echo "Locked by $USER($MAILTO)/$MASTER since `date`" > "$DISTRIBENCH_LOCK_FILE") 2> /dev/null; then
+if ( set -o noclobber; echo -e "Locked by $USER ($MAILTO)\nmaster:$MASTER\nsince `date`\n" > "$DISTRIBENCH_LOCK_FILE") 2> /dev/null; then
   echo "Locking succeeded" >&2
 else
   echo "Lock failed - exit" >&2
   exit 1
 fi
-
 
 # prepare benchmarks
 [ -d $PARENT_DIR ] || mkdir -p $PARENT_DIR

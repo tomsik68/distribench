@@ -7,6 +7,7 @@ fi
 DATE=`date +%s`
 PARENT_DIR=/var/data/statica/
 TOOL_BIN=/home/$USER/formela/symbiotic/install/bin
+BENCHEXEC_DIR=/home/$USER/formela/benchexec
 BENCHMARKS_DIR=$PARENT_DIR/sv-benchmarks
 DIR=$PARENT_DIR/symbiotic-$USER/$3/$DATE
 DISTRIBENCH_LOCK_FILE=$PARENT_DIR/distribench.lock
@@ -46,7 +47,8 @@ CLEANER="$!"
 
 MASTER=$4
 
-./benchexec/bin/benchexec -o $DIR -t $2 -n $3 $1
+$BENCHEXEC_DIR/bin/benchexec -o $DIR -t $2 -n $3 $1
+
 # unlock
 rm -f "$DISTRIBENCH_LOCK_FILE"
 

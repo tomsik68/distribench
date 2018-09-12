@@ -40,7 +40,7 @@ Each node in the cluster needs: `run_benchmarks.cat`, `cleanup`, benchexec confi
 
 1. Prepare a file called `machines` on the master node. Each line of this file contains hostname of a usable machine in the cluster
 2. Prepare benchexec configuration XML (`benchexec_config.xml`) on master node
-3. Prepare client-side script on master node. It has to be exactly the same for all workers. For example client script, see [run_benchmarks.cat] (https://github.com/tomsik68/distribench/blob/master/run_benchmarks.cat)
+3. Prepare client-side script on master node. It has to be exactly the same for all workers. For example client script, see [run_benchmarks.cat](https://github.com/tomsik68/distribench/blob/master/run_benchmarks.cat)
 4. Prepare distribution archive of your tool on master node
 5. Start `./distribute_benchmarks.py` on master node (running the script without parameters reveals usage)
 

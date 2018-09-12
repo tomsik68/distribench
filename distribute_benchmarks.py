@@ -33,7 +33,7 @@ except ImportError:
                 except ImportError:
                     print("Failed to import ElementTree from any known place")
 
-RUNBENCH_WORKDIR = '~/formela' # no trailing slash
+DISTRIBENCH_WORKDIR = '~/formela' # no trailing slash
 master_hostname = socket.gethostname()
 
 def delay():
@@ -89,7 +89,7 @@ def runSet(taskset, machine, be_config, tests_name):
             pp = getpass.getpass('Please input your passphrase: ')
             client.connect(machine, passphrase=pp)
 
-        stdin, stdout, stderr = client.exec_command('cd ' + RUNBENCH_WORKDIR + ' && nohup ' + RUNBENCH_WORKDIR +'/run_benchmarks.cat ' + be_config + ' ' + taskset + ' ' + tests_name + ' ' + master_hostname + ' >/dev/null 2>/dev/null < /dev/null')
+        stdin, stdout, stderr = client.exec_command('cd ' + DISTRIBENCH_WORKDIR + ' && nohup ' + DISTRIBENCH_WORKDIR +'/run_benchmarks.cat ' + be_config + ' ' + taskset + ' ' + tests_name + ' ' + master_hostname + ' >/dev/null 2>/dev/null < /dev/null')
 
 def getFreeMachines(machines, tests_name):
     return list(os.listdir(DONE_INDICATION_DIR+'/'+tests_name))

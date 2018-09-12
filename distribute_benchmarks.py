@@ -6,35 +6,9 @@ import time
 import socketserver
 import socket
 import logging
+from lxml import etree
 
-# find ElementTree
-try:
-    from lxml import etree
-    print("running with lxml.etree")
-except ImportError:
-    try:
-        # Python 2.5
-        import xml.etree.cElementTree as etree
-        print("running with cElementTree on Python 2.5+")
-    except ImportError:
-        try:
-            # Python 2.5
-            import xml.etree.ElementTree as etree
-            print("running with ElementTree on Python 2.5+")
-        except ImportError:
-            try:
-                # normal cElementTree install
-                import cElementTree as etree
-                print("running with cElementTree")
-            except ImportError:
-                try:
-                    # normal ElementTree install
-                    import elementtree.ElementTree as etree
-                    print("running with ElementTree")
-                except ImportError:
-                    print("Failed to import ElementTree from any known place")
-
-DISTRIBENCH_WORKDIR = '~/formela' # no trailing slash
+distribench_workdir = '~/formela' # no trailing slash
 master_hostname = socket.gethostname()
 
 def delay():
@@ -88,7 +62,25 @@ def runSet(taskset, machine, be_config, tests_name):
             pp = getpass.getpass('Please input your passphrase: ')
             client.connect(machine, passphrase=pp)
 
-        stdin, stdout, stderr = client.exec_command('cd ' + DISTRIBENCH_WORKDIR + ' && nohup ' + DISTRIBENCH_WORKDIR +'/run_benchmarks.cat ' + be_config + ' ' + taskset + ' ' + tests_name + ' ' + master_hostname + ' >/dev/null 2>/dev/null < /dev/null')
+        stdin, stdout, stderr = client.exec_command('mkdir -p ' + DISTRIBENCH_WORKDIR)
+        sftp = client.open_sftp()
+        send_file(sftp, DISTRIBENCH_WORKDIR + '/start', start_script)
+        send_file(sftp, DISTRIBENCH_WORKDIR + '/start', start_script)
+        send_file(sftp, DISTRIBENCH_WORKDIR + '/benchexec_config.xml', be_config)
+        stdin, stdout, stderr = client.exec_command('chmod +x ' + DISTRIBENCH_WORKDIR + '/start')
+        stdin, stdout, stderr = client.exec_command('cd ' + DISTRIBENCH_WORKDIR + ' && nohup ' + DISTRIBENCH_WORKDIR +'/start ' + be_config + ' ' + taskset + ' ' + tests_name + ' ' + master_hostname + ' >/dev/null 2>/dev/null < /dev/null')
+
+def send_file(sftp, target_file, source_path):
+    """
+    Upload @source_path to @target_dir through @sftp
+    """
+    with open(source_path, 'r') as fSource:
+        with sftp.file(target_file, 'w') as fTarget:
+            while True:
+                copy_buffer = fSource.read(16384)
+                if not copy_buffer:
+                    break
+                fTarget.write(copy_buffer)
 
 args = sys.argv[1:]
 if len(args) < 3:
@@ -145,6 +137,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             if jobscount <= 0:
                 # TODO shutdown without deadlock
                 log("You can now shutdown the master node using CTRL-C")
+
         elif cmds[0] == 'locked':
             tn = cmds[1]
             cat = cmds[2]
@@ -152,6 +145,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             log("Failed to start job {}/{}: {} is locked: {}".format(tn,cat,from_host,lockmsg))
             log('Pushing {} back into queue'.format(tn))
             tasksets.append(cat)
+
         else:
             log("Task at {} failed: {}".format(from_host,self.data))
 

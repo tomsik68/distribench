@@ -68,8 +68,8 @@ SYMBIOTIC_DIR=$PARENT_DIR/symbiotic-$USER/versions/$SYMBIOTIC_VERSION
 mv install $SYMBIOTIC_VERSION
 cd -
 
-cp ~/formela/distribench/cleanup .
-./cleanup &
+# cleanup symbiotic files from /tmp to prevent disk space problems
+( while true; do find /tmp -type d -name 'symbiotic-*' -cmin +3 -exec rm -rf {} \; -print 2>/dev/null; sleep 180; done ) &
 CLEANER="$!"
 
 # add tool to PATH
